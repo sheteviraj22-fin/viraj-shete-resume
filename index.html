@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viraj Shete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f2ede6;
+    --accent: #c8392b;
+    --muted: #7a7060;
+    --line: rgba(10,10,10,0.12);
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --display: 'Bebas Neue', sans-serif;
+    --sans: 'Instrument Sans', sans-serif;
+  }
+
+  html { scroll-behavior: auto; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  #cursor {
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+  }
+  #cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    opacity: 0.5;
+    transition: width 0.3s, height 0.3s, opacity 0.3s;
+  }
+  body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 6px; height: 6px; }
+  body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 52px; height: 52px; opacity: 0.2; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 1.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: multiply;
+  }
+  .nav-mark {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .nav-cta {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 1px;
+  }
+
+  /* SECTIONS */
+  section { min-height: 100vh; position: relative; }
+
+  /* HERO */
+  #hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3rem 4rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-bg-text {
+    position: absolute;
+    top: 50%;
+    left: -0.02em;
+    transform: translateY(-52%);
+    font-family: var(--display);
+    font-size: clamp(120px, 20vw, 280px);
+    line-height: 0.88;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(10,10,10,0.06);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-status {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    opacity: 0;
+  }
+  .hero-status::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--accent);
+    display: block;
+  }
+  .hero-name {
+    font-family: var(--display);
+    font-size: clamp(64px, 10vw, 140px);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  .hero-name span { color: var(--accent); }
+  .hero-sub {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .hero-descriptor {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(18px, 2.5vw, 28px);
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.4;
+    opacity: 0;
+  }
+  .hero-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.8;
+    opacity: 0;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollPulse { 0%,100%{opacity:0.3;transform:scaleY(1)} 50%{opacity:1;transform:scaleY(0.6)} }
+
+  /* THESIS */
+  #thesis {
+    padding: 8rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+    border-bottom: 1px solid var(--line);
+  }
+  .thesis-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-top: 0.5rem;
+    position: sticky;
+    top: 5rem;
+  }
+  .thesis-statement {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 52px);
+    line-height: 1.2;
+    font-style: italic;
+  }
+  .thesis-statement strong { font-style: normal; font-family: var(--display); font-size: 1.15em; color: var(--accent); }
+  .thesis-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 3rem;
+  }
+  .pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    color: var(--muted);
+  }
+
+  /* WORK TIMELINE */
+  #work {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 5rem;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .section-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .work-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    padding: 3rem 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .work-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.6s ease;
+  }
+  .work-item.active::before, .work-item:hover::before { width: 100%; }
+  .work-meta { }
+  .work-co {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .work-role {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+    font-style: italic;
+    font-family: var(--serif);
+  }
+  .work-period {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+  .work-content { }
+  .work-headline {
+    font-family: var(--serif);
+    font-size: clamp(20px, 2.5vw, 30px);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+  }
+  .work-items-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .work-items-list li {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    padding-left: 1.2rem;
+    position: relative;
+    line-height: 1.6;
+  }
+  .work-items-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  /* PROJECTS */
+  #projects {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .project-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--line);
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: padding 0.5s ease;
+  }
+  .project-row::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: rgba(200,57,43,0.04);
+    transition: width 0.4s ease;
+    z-index: 0;
+  }
+  .project-row:hover::after { width: 100%; }
+  .project-row > * { position: relative; z-index: 1; }
+  .project-title {
+    font-family: var(--display);
+    font-size: clamp(32px, 4.5vw, 64px);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    transition: color 0.3s;
+  }
+  .project-row:hover .project-title { color: var(--accent); }
+  .project-liner {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    max-width: 500px;
+    line-height: 1.7;
+  }
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .project-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.6s ease;
+    grid-column: 1 / -1;
+  }
+  .project-detail.open { max-height: 400px; }
+  .project-detail-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem 0 1rem;
+    border-top: 1px solid var(--line);
+    margin-top: 1rem;
+  }
+  .detail-block-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  .detail-block-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* SYSTEMS */
+  #systems {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  #systems .section-title { color: var(--paper); }
+  .systems-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(242,237,230,0.1);
+    border: 1px solid rgba(242,237,230,0.1);
+    margin-top: 4rem;
+  }
+  .system-cell {
+    background: var(--ink);
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .system-cell::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 0;
+    background: var(--accent);
+    transition: height 0.4s ease;
+  }
+  .system-cell:hover::before { height: 2px; }
+  .system-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: rgba(242,237,230,0.25);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+  }
+  .system-cat {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+  .system-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--paper);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .system-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(242,237,230,0.45);
+    line-height: 1.7;
+  }
+
+  /* CERTS & EDUCATION */
+  #credentials {
+    padding: 6rem 3rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .creds-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 4rem;
+  }
+  .creds-col-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .cred-item {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .cred-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .cred-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* CONTACT */
+  #contact {
+    min-height: 60vh;
+    padding: 8rem 3rem 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .contact-statement {
+    font-family: var(--display);
+    font-size: clamp(48px, 8vw, 120px);
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    max-width: 900px;
+  }
+  .contact-statement span { color: var(--accent); }
+  .contact-links {
+    display: flex;
+    gap: 3rem;
+    align-items: center;
+    margin-top: 5rem;
+  }
+  .contact-link {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.3s;
+  }
+  .contact-link:hover { border-color: var(--accent); color: var(--accent); }
+  .footer-rule {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-mark {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    overflow: hidden;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 4rem;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+  }
+  .marquee-item {
+    font-family: var(--display);
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .marquee-item .dot { color: var(--accent); margin-right: 4rem; }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* NOISE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    #hero, #thesis, #work, #projects, #systems, #credentials, #contact { padding-left: 1.5rem; padding-right: 1.5rem; }
+    #thesis { grid-template-columns: 1fr; }
+    .work-item { grid-template-columns: 1fr; gap: 1rem; }
+    .project-row { grid-template-columns: 1fr; }
+    .project-tags { justify-content: flex-start; }
+    .systems-grid { grid-template-columns: 1fr 1fr; }
+    .creds-grid { grid-template-columns: 1fr; }
+    .project-detail-inner { grid-template-columns: 1fr; }
+    .hero-sub { flex-direction: column; gap: 1.5rem; }
+    .hero-meta { text-align: left; }
+    .contact-links { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .footer-rule { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<nav>
+  <div class="nav-mark">VS — Quant Research</div>
+  <a class="nav-cta" href="mailto:sheteviraj4@gmail.com">Available for work</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-text" id="bgText">VIRAJ</div>
+  <div class="hero-status">CFA Level 2 Candidate &nbsp;·&nbsp; Pune, India</div>
+  <h1 class="hero-name">VIRAJ<br><span>SHETE.</span></h1>
+  <div class="hero-sub">
+    <p class="hero-descriptor">Turning market noise into probabilistic signal. Risk frameworks, not narratives.</p>
+    <div class="hero-meta">
+      Kotak Mutual Fund<br>
+      Quant Research · Risk Modeling<br>
+      Systems Thinking
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="marquee-item">Time-Series Analysis <span class="dot">●</span></span>
+    <span class="marquee-item">GARCH Volatility Modeling <span class="dot">●</span></span>
+    <span class="marquee-item">Monte Carlo Simulation <span class="dot">●</span></span>
+    <span class="marquee-item">VaR / CVaR Estimation <span class="dot">●</span></span>
+    <span class="marquee-item">Mean Reversion Analysis <span class="dot">●</span></span>
+    <span class="marquee-item">Fixed Income · Derivatives <span class="dot">●</span></span>
+    <span class="marquee-item">Backtesting Frameworks <span class="dot">●</span></span>
+    <span class="marquee-item">Portfolio Risk-Return <span class="dot">●</span></span>
+    <span class="marquee-item">Time-Series Analysis <span class="dot">●</span></span>
+    <span class="marquee-item">GARCH Volatility Modeling <span class="dot">●</span></span>
+    <span class="marquee-item">Monte Carlo Simulation <span class="dot">●</span></span>
+    <span class="marquee-item">VaR / CVaR Estimation <span class="dot">●</span></span>
+    <span class="marquee-item">Mean Reversion Analysis <span class="dot">●</span></span>
+    <span class="marquee-item">Fixed Income · Derivatives <span class="dot">●</span></span>
+    <span class="marquee-item">Backtesting Frameworks <span class="dot">●</span></span>
+    <span class="marquee-item">Portfolio Risk-Return <span class="dot">●</span></span>
+  </div>
+</div>
+
+<!-- THESIS -->
+<section id="thesis">
+  <div class="thesis-label">Approach</div>
+  <div>
+    <p class="thesis-statement reveal-up">
+      Markets are <strong>probabilistic systems</strong>, not stories. The edge lives in the model—
+      not the narrative. I build frameworks that <strong>quantify uncertainty</strong> and
+      extract signal from structured chaos.
+    </p>
+    <div class="thesis-pills reveal-up" style="transition-delay:0.2s">
+      <span class="pill">Systematic</span>
+      <span class="pill">Model-Driven</span>
+      <span class="pill">Risk-First</span>
+      <span class="pill">Statistical Rigor</span>
+      <span class="pill">Python</span>
+      <span class="pill">Advanced Excel + VBA</span>
+      <span class="pill">NISM Certified</span>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-header">
+    <h2 class="section-title reveal-up">EXPERIENCE</h2>
+    <span class="section-count">02 roles</span>
+  </div>
+
+  <div class="work-item reveal-up">
+    <div class="work-meta">
+      <div class="work-co">Kotak Mutual Fund</div>
+      <div class="work-role">Sales Support Apprentice</div>
+      <div class="work-period">Oct 2025 – Present</div>
+    </div>
+    <div class="work-content">
+      <p class="work-headline">Building risk infrastructure inside one of India's largest AMCs.</p>
+      <ul class="work-items-list">
+        <li>Built MIS dashboards tracking mutual fund & ETF capital flows across regimes</li>
+        <li>Applied ARCH/GARCH frameworks to model realized and implied volatility surfaces</li>
+        <li>Estimated VaR & CVaR (Expected Shortfall) under stress scenarios</li>
+        <li>Backtested rule-based strategies; evaluated on Max Drawdown, IR & Hit Ratio</li>
+        <li>Time-series models to detect mean reversion and cross-asset correlation breaks</li>
+        <li>Monte Carlo simulations for forward portfolio stress testing</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="work-item reveal-up">
+    <div class="work-meta">
+      <div class="work-co">Kotak Mutual Fund</div>
+      <div class="work-role">Summer Intern</div>
+      <div class="work-period">Jan 2025 – Mar 2025</div>
+    </div>
+    <div class="work-content">
+      <p class="work-headline">Deep exposure to fund flows, ETF analytics, and performance attribution.</p>
+      <ul class="work-items-list">
+        <li>ETF flow analysis and NAV tracking across equity and debt categories</li>
+        <li>Quantitative methods applied to rolling performance evaluation</li>
+        <li>Contributed to internal research on fund category risk-return profiles</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="work-item reveal-up">
+    <div class="work-meta">
+      <div class="work-co">Vivanta Social</div>
+      <div class="work-role">Business Development Analyst</div>
+      <div class="work-period">Jul 2023 – Jan 2025</div>
+    </div>
+    <div class="work-content">
+      <p class="work-headline">Built go-to-market systems and measured outcomes in rupees, not impressions.</p>
+      <ul class="work-items-list">
+        <li>Built Saurniket.com — full e-commerce system from ground up</li>
+        <li>Executed Meta Ads, Google Ads, SEO campaigns — multi-crore reach achieved</li>
+        <li>B2B & B2C market research; funnel design to high-quality lead generation</li>
+        <li>Measured and optimized for ROI at every channel layer</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header">
+    <h2 class="section-title reveal-up">SYSTEMS<br>BUILT</h2>
+    <span class="section-count">08 projects</span>
+  </div>
+  <div class="projects-grid" id="projectsGrid"></div>
+</section>
+
+<!-- SYSTEMS / RESEARCH GRID -->
+<section id="systems">
+  <div class="section-header">
+    <h2 class="section-title reveal-up">RESEARCH</h2>
+    <span class="section-count" style="color:rgba(242,237,230,0.35)">06 publications</span>
+  </div>
+  <div class="systems-grid" id="researchGrid"></div>
+</section>
+
+<!-- CREDENTIALS -->
+<section id="credentials">
+  <div class="section-header">
+    <h2 class="section-title reveal-up">CREDENTIALS</h2>
+  </div>
+  <div class="creds-grid">
+    <div>
+      <div class="creds-col-title">Certifications</div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">NISM XIII — Derivatives</span>
+        <span class="cred-meta">NISM</span>
+      </div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">NISM XV — Research Analyst</span>
+        <span class="cred-meta">NISM</span>
+      </div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">NISM VA — Mutual Fund Distributor</span>
+        <span class="cred-meta">NISM</span>
+      </div>
+    </div>
+    <div>
+      <div class="creds-col-title">Education</div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">CFA Level 2 Candidate</span>
+        <span class="cred-meta">CFA Institute</span>
+      </div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">B.Com</span>
+        <span class="cred-meta">BMCC · 6.76 CGPA</span>
+      </div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">Higher Secondary</span>
+        <span class="cred-meta">Fergusson · 70%</span>
+      </div>
+      <div class="cred-item reveal-up">
+        <span class="cred-name">Secondary</span>
+        <span class="cred-meta">New English School · 94.4%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <h2 class="contact-statement reveal-up">
+    LET'S BUILD<br>
+    SOMETHING<br>
+    <span>PRECISE.</span>
+  </h2>
+  <div>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:sheteviraj4@gmail.com">
+        <span>↗</span> sheteviraj4@gmail.com
+      </a>
+      <a class="contact-link" href="tel:+918637707338">
+        <span>↗</span> +91 8637707338
+      </a>
+      <a class="contact-link" href="https://linkedin.com/in/viraj-shete" target="_blank">
+        <span>↗</span> linkedin.com/in/viraj-shete
+      </a>
+    </div>
+    <div class="footer-rule">
+      <span class="footer-mark">© 2025 Viraj Shete</span>
+      <span class="footer-mark">Quant Research · Risk Modeling · Systems Thinking</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  const projects = [
+    {
+      id: "monte-carlo",
+      title: "Monte Carlo Risk Engine",
+      one_liner: "Probabilistic P&L distribution engine. 10,000-path simulation with fat-tail adjustment.",
+      insight: "Standard VaR underestimates tail events. This engine overlays historical stress scenarios onto simulated paths.",
+      build: "Python · NumPy · SciPy · GARCH residuals · Cornish-Fisher expansion for tail correction",
+      impact: "VaR & CVaR estimation with scenario overlays. Used live at Kotak for portfolio stress testing.",
+      tags: ["Python", "Risk", "Quant"]
+    },
+    {
+      id: "backtest",
+      title: "Backtesting Framework",
+      one_liner: "Rule-based strategy engine with regime detection and walk-forward validation.",
+      insight: "Most backtests overfit. This framework enforces strict out-of-sample windows and regime-conditional evaluation.",
+      build: "Python · Pandas · Custom regime classifier · Rolling Information Ratio tracker",
+      impact: "Evaluated 15+ strategies on Hit Ratio, Max Drawdown, and risk-adjusted return. Eliminated 60% as noise.",
+      tags: ["Python", "Strategy", "Quant"]
+    },
+    {
+      id: "garch-volatility",
+      title: "GARCH Volatility Surface",
+      one_liner: "Realized vs implied vol modeling. Detects vol regime shifts before price reacts.",
+      insight: "Vol clustering is predictable. GARCH(1,1) + event overlays capture regime transitions in equity indices.",
+      build: "Python · arch library · NIFTY & Sensex time-series · Rolling 21/63-day windows",
+      impact: "Early-warning signal for volatility regime change. Integrated into fund flow analysis dashboard.",
+      tags: ["GARCH", "Volatility", "Python"]
+    },
+    {
+      id: "mis-dashboard",
+      title: "MIS Flow Dashboard",
+      one_liner: "Mutual fund & ETF capital flow tracker. Identifies allocation regime shifts across categories.",
+      insight: "Fund flows lead price in certain regimes. Tracking SIP inflows vs redemptions reveals institutional positioning.",
+      build: "Advanced Excel · VBA Automation · Python preprocessing · Time-series decomposition",
+      impact: "Live operational dashboard at Kotak MF. Feeds into weekly fund category analysis.",
+      tags: ["Excel", "VBA", "Analytics"]
+    },
+    {
+      id: "saurniket",
+      title: "Saurniket E-Commerce",
+      one_liner: "Full-stack e-commerce system. Built end-to-end — storefront, ops, acquisition, analytics.",
+      insight: "Most e-commerce fails on unit economics. Built attribution tracking before scaling spend.",
+      build: "Web stack · Meta & Google Ads integration · SEO architecture · Funnel analytics",
+      impact: "Multi-crore reach. Measurable ROAS positive campaigns. Lead quality > lead quantity.",
+      tags: ["Web", "E-Commerce", "Growth"]
+    },
+    {
+      id: "yield-curve",
+      title: "Yield Curve Analysis",
+      one_liner: "Term structure decomposition. Duration, convexity, and curve regime mapping.",
+      insight: "Yield curve shape predicts macro regime better than most indicators. Inversion timing matters.",
+      build: "Python · RBI data · Nelson-Siegel fitting · Duration-matched portfolio stress scenarios",
+      impact: "Research output used in fixed income category analysis and MPC impact assessment.",
+      tags: ["Fixed Income", "Macro", "Python"]
+    },
+    {
+      id: "correlation",
+      title: "Rolling Correlation Engine",
+      one_liner: "Cross-asset correlation tracker with regime-break detection.",
+      insight: "Correlations go to 1 in crisis. Static correlation is a risk management illusion.",
+      build: "Python · Dynamic conditional correlation (DCC) · 30/90/252-day rolling windows",
+      impact: "Identified correlation breaks before significant drawdown events in portfolio analysis.",
+      tags: ["Risk", "Correlation", "Python"]
+    },
+    {
+      id: "capital-structure",
+      title: "Zomato Capital Structure Analysis",
+      one_liner: "Deep-dive into equity dilution, burn rate, and path to profitability.",
+      insight: "Zomato's unit economics only made sense once order-level contribution margins were reconstructed.",
+      build: "Financial modeling · Segment-level reconstruction · DCF + scenario analysis",
+      impact: "Published research memo covering capital allocation efficiency and competitive positioning.",
+      tags: ["Research", "Equity", "Modeling"]
+    }
+  ];
+
+  const research = [
+    { cat: "Macro Research", name: "Trump Tariff Analysis", desc: "Transmission mechanism of tariff shocks to Indian export sectors and INR volatility." },
+    { cat: "Equity Research", name: "Bank of America Thesis", desc: "NIM compression analysis, credit cycle positioning, and rate sensitivity modeling." },
+    { cat: "Investment Memo", name: "VR Investment Memorandum", desc: "TAM analysis, adoption curve modeling, and risk-adjusted entry framework for VR sector." },
+    { cat: "Institutional Research", name: "Deutsche Bank Research", desc: "Balance sheet stress analysis and European banking sector systemic risk mapping." },
+    { cat: "Policy Analysis", name: "MPC Analysis", desc: "Monetary Policy Committee decision decomposition — rate, stance, and forward guidance parsing." },
+    { cat: "Macro", name: "Indian Economic Reforms", desc: "Structural reform impact modeling — fiscal multipliers and sectoral reallocation dynamics." }
+  ];
+
+  // Render projects
+  const pg = document.getElementById('projectsGrid');
+  projects.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'project-row reveal-up';
+    row.innerHTML = `
+      <div>
+        <div class="project-title">${p.title.toUpperCase()}</div>
+        <div class="project-liner">${p.one_liner}</div>
+      </div>
+      <div class="project-tags">
+        ${p.tags.map(t => `<span class="pill">${t}</span>`).join('')}
+      </div>
+      <div class="project-detail" id="detail-${p.id}">
+        <div class="project-detail-inner">
+          <div>
+            <div class="detail-block-label">The Insight</div>
+            <div class="detail-block-text">${p.insight}</div>
+          </div>
+          <div>
+            <div class="detail-block-label">How it's Built</div>
+            <div class="detail-block-text">${p.build}</div>
+          </div>
+          <div>
+            <div class="detail-block-label">Why it Matters</div>
+            <div class="detail-block-text">${p.impact}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    row.addEventListener('click', () => {
+      const detail = row.querySelector('.project-detail');
+      const isOpen = detail.classList.contains('open');
+      document.querySelectorAll('.project-detail.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) detail.classList.add('open');
+    });
+    pg.appendChild(row);
+  });
+
+  // Render research
+  const rg = document.getElementById('researchGrid');
+  research.forEach((r, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'system-cell';
+    cell.innerHTML = `
+      <div class="system-num">0${i+1}</div>
+      <div class="system-cat">${r.cat}</div>
+      <div class="system-name">${r.name}</div>
+      <div class="system-desc">${r.desc}</div>
+    `;
+    rg.appendChild(cell);
+  });
+
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function animCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  })();
+
+  // GSAP animations
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero entrance
+  gsap.timeline({ delay: 0.2 })
+    .to('.hero-status', { opacity: 1, duration: 0.8, ease: 'power2.out' })
+    .to('.hero-name', { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, '-=0.4')
+    .to('.hero-descriptor', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.6')
+    .to('.hero-meta', { opacity: 1, duration: 0.8, ease: 'power2.out' }, '-=0.6')
+    .to('.scroll-hint', { opacity: 1, duration: 0.5 }, '-=0.3');
+
+  // Background text parallax
+  gsap.to('#bgText', {
+    y: '-20%',
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 }
+  });
+
+  // Reveal-up elements
+  gsap.utils.toArray('.reveal-up').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+
+  // Work item hover accent
+  document.querySelectorAll('.work-item').forEach(item => {
+    item.addEventListener('mouseenter', () => item.classList.add('active'));
+    item.addEventListener('mouseleave', () => item.classList.remove('active'));
+  });
+</script>
+</body>
+</html>
